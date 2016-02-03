@@ -30,7 +30,7 @@
   // Filter according to enrollment that is greater than this variable:
   var minEnrollment = 300;
 
-
+  /*
   // clean data
   for (var i = 0; i < schools.length - 1; i++) {
     // If we have '19104 - 1234', splitting and taking the first (0th) element
@@ -55,6 +55,28 @@
       schools[i].HAS_HIGH_SCHOOL = schools[i].GRADE_LEVEL.toUpperCase().indexOf('HIGH') >= 0;
     }
   }
+  */
+
+  // clean data - CLEARER USING _.each
+  _.each(schools, function(i){
+    if (typeof i.ZIPCODE === 'string'){
+      split = i.ZIPCODE.split('');
+      normalized_zip = parseInt(split[0]);
+      i.ZIPCODE = normalized_zip;
+    }
+    if (typeof i.GRADE_ORG === 'number'){
+      i.HAS_KINDERGARTEN = i.GRADE_LEVEL < 1;
+      i.HAS_ELEMENTARY = 1 < i.GRADE_LEVEL < 6;
+      i.HAS_MIDDLE_SCHOOL = 5 < i.GRADE_LEVEL < 9;
+      i.HAS_HIGH_SCHOOL = 8 < i.GRADE_LEVEL < 13;
+    }
+    else {
+      i.HAS_KINDERGARTEN = i.GRADE_LEVEL.toUpperCase().indexOf('K') >= 0;
+      i.HAS_ELEMENTARY = i.GRADE_LEVEL.toUpperCase().indexOf('ELEM') >= 0;
+      i.HAS_MIDDLE_SCHOOL = i.GRADE_LEVEL.toUpperCase().indexOf('MID') >= 0;
+      i.HAS_HIGH_SCHOOL = i.GRADE_LEVEL.toUpperCase().indexOf('HIGH') >= 0;
+    }
+  });
 
   // filter data
   var filtered_data = [];
