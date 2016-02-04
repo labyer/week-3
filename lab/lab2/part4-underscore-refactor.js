@@ -57,19 +57,23 @@
   }
   */
 
+
   // clean data - CLEARER USING _.each
   _.each(schools, function(i){
+    //clean zip codes
     if (typeof i.ZIPCODE === 'string'){
       split = i.ZIPCODE.split('');
       normalized_zip = parseInt(split[0]);
       i.ZIPCODE = normalized_zip;
     }
+    //clean grade numbers (if number)
     if (typeof i.GRADE_ORG === 'number'){
       i.HAS_KINDERGARTEN = i.GRADE_LEVEL < 1;
       i.HAS_ELEMENTARY = 1 < i.GRADE_LEVEL < 6;
       i.HAS_MIDDLE_SCHOOL = 5 < i.GRADE_LEVEL < 9;
       i.HAS_HIGH_SCHOOL = 8 < i.GRADE_LEVEL < 13;
     }
+    //clean grade numbers (if string)
     else {
       i.HAS_KINDERGARTEN = i.GRADE_LEVEL.toUpperCase().indexOf('K') >= 0;
       i.HAS_ELEMENTARY = i.GRADE_LEVEL.toUpperCase().indexOf('ELEM') >= 0;
@@ -77,6 +81,12 @@
       i.HAS_HIGH_SCHOOL = i.GRADE_LEVEL.toUpperCase().indexOf('HIGH') >= 0;
     }
   });
+
+
+
+
+
+/* ORIGINAL CODE
 
   // filter data
   var filtered_data = [];
@@ -104,6 +114,50 @@
   }
   console.log('Included:', filtered_data.length);
   console.log('Excluded:', filtered_out.length);
+  console.log(schools.length);
+  //why are there only 549 objects when you add together the 'Included' and 'Excluded' data, but there are a  total number of 550 objects in the total dataset??
+
+*/
+
+
+
+
+
+
+  // filter data - CLEARER USING
+  var filtered_data = [];
+  var filtered_out = [];
+  _.each(schools, function(i) {
+    isOpen = i.ACTIVE.toUpperCase() == 'OPEN';
+    isPublic = (i.TYPE.toUpperCase() !== 'CHARTER' ||
+                i.TYPE.toUpperCase() !== 'PRIVATE');
+    isSchool = (i.HAS_KINDERGARTEN ||
+                i.HAS_ELEMENTARY ||
+                i.HAS_MIDDLE_SCHOOL ||
+                i.HAS_HIGH_SCHOOL);
+    meetsMinimumEnrollment = i.ENROLLMENT > minEnrollment;
+    meetsZipCondition = acceptedZipcodes.indexOf(i.ZIPCODE) >= 0;
+    filter_condition = (isOpen &&
+                        isSchool &&
+                        meetsMinimumEnrollment &&
+                        !meetsZipCondition);
+    _.filter(schools, function(i){
+      if(filter_condition === true){
+        filtered_data.push(i);
+      }
+      else {
+        filtered_out.push(i);
+      }
+    });
+  });
+  console.log('Included:', filtered_data.length);
+  console.log('Excluded:', filtered_out.length);
+  console.log(schools.length);
+  //there are still a total number of 550 objects in the dataset but the 'Included' has a length of 156,750 and the 'xcluded' has a length of 145,750...hmmmmm...
+
+
+
+
 
   // main loop
   var color;
