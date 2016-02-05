@@ -31,6 +31,9 @@
   var minEnrollment = 300;
 
   /*
+
+  //ORIGINAL CODE
+
   // clean data
   for (var i = 0; i < schools.length - 1; i++) {
     // If we have '19104 - 1234', splitting and taking the first (0th) element
@@ -86,7 +89,9 @@
 
 
 
-/* ORIGINAL CODE
+  /*
+
+  //ORIGINAL CODE
 
   // filter data
   var filtered_data = [];
@@ -117,17 +122,18 @@
   console.log(schools.length);
   //why are there only 549 objects when you add together the 'Included' and 'Excluded' data, but there are a  total number of 550 objects in the total dataset??
 
-*/
+  */
 
 
 
 
 
 
-  // filter data - CLEARER USING
+
+  // filter data - CLEARER USING _.filter
   var filtered_data = [];
   var filtered_out = [];
-  _.each(schools, function(i) {
+  _.filter(schools, function(i) {
     isOpen = i.ACTIVE.toUpperCase() == 'OPEN';
     isPublic = (i.TYPE.toUpperCase() !== 'CHARTER' ||
                 i.TYPE.toUpperCase() !== 'PRIVATE');
@@ -141,23 +147,23 @@
                         isSchool &&
                         meetsMinimumEnrollment &&
                         !meetsZipCondition);
-    _.filter(schools, function(i){
-      if(filter_condition === true){
-        filtered_data.push(i);
-      }
-      else {
-        filtered_out.push(i);
-      }
-    });
+    if (filter_condition === true){
+      filtered_data.push(i);
+    }
+    else{
+      filtered_out.push(i);
+    }
   });
   console.log('Included:', filtered_data.length);
   console.log('Excluded:', filtered_out.length);
   console.log(schools.length);
-  //there are still a total number of 550 objects in the dataset but the 'Included' has a length of 156,750 and the 'xcluded' has a length of 145,750...hmmmmm...
 
 
 
 
+  /*
+
+  //ORIGINAL CODE
 
   // main loop
   var color;
@@ -182,5 +188,33 @@
       .bindPopup(filtered_data[i].FACILNAME_LABEL)
       .addTo(map);
   }
+
+  */
+
+
+
+  // main loop - CLEARER USING _.each
+
+  var color;
+  _.each(filtered_data, function(i){
+    isOpen = i.ACTIVE.toUpperCase() == 'OPEN';
+    isPublic = (i.TYPE.toUpperCase() !== 'CHARTER' ||
+                i.TYPE.toUpperCase() !== 'PRIVATE');
+    meetsMinimumEnrollment = i.ENROLLMENT > minEnrollment;
+    if (i.HAS_HIGH_SCHOOL){
+      color = '#0000FF';
+    } else if (i.HAS_MIDDLE_SCHOOL) {
+      color = '#00FF00';
+    } else {
+      color = '##FF0000';
+    }
+    var pathOpts = {'radius': i.ENROLLMENT / 30,
+                    'fillColor': color};
+    L.circleMarker([i.Y, i.X], pathOpts)
+      .bindPopup(i.FACILNAME_LABEL)
+      .addTo(map);
+  });
+
+
 
 })();
